@@ -1,0 +1,51 @@
+{
+  "name": "musify-server",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "description": "",
+  "scripts": {
+    "server:start": "dotenvx run -f ./.env -- tsx index.ts",
+    "server:dev": "dotenvx run -f ./.env -- tsx --watch index.ts",
+    "lint": "eslint --fix"
+  },
+  "keywords": [
+    "express",
+    "streaming"
+  ],
+  "author": "Adam",
+  "license": "MIT",
+  "dependencies": {
+    "@asteasolutions/zod-to-openapi": "^9.1.0",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "fdir": "^6.5.0",
+    "helmet": "^8.1.0",
+    "moment": "^2.30.1",
+    "nodemon": "^3.1.14",
+    "prettier-eslint": "^16.4.2",
+    "request-ip": "^3.3.0",
+    "sequelize": "^6.37.8",
+    "sqlite3": "^5.1.7",
+    "winston": "^3.19.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@dotenvx/dotenvx": "^2.2.1",
+    "@eslint/js": "^10.0.1",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.3.5",
+    "@types/request-ip": "^0.0.41",
+    "@typescript-eslint/parser": "^8.57.1",
+    "eslint": "^10.1.0",
+    "eslint-plugin-prettier": "^5.5.5",
+    "globals": "^17.4.0",
+    "prettier": "^3.8.1",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typeorm": "^0.3.28",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.57.1"
+  }
+}

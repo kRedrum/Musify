@@ -1,0 +1,4 @@
+name: local
+variables:
+  - name: BASE_URL
+    value: localhost
