@@ -8,7 +8,7 @@ class AccountTests(APITestCase):
 
     def setUp(self) -> None:
         self.user = User.objects.create_user(username='username', password='Pas$w0rd')
-        User.objects.create_user(username="sziget", password="porcica69")
+        User.objects.create_user(username="test", password="test")
         self.client.login(username="username", password="Pas$w0rd")
         return super().setUp()
 

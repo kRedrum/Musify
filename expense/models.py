@@ -29,7 +29,6 @@ class Expense(models.Model):
     recurrence_type = models.CharField(choices=RecurrenceTypes.choices, default=RecurrenceTypes.MONTHLY)
 
     def clean(self) -> None:
-        print(self.period_end)
         if hasattr(self, 'period_end') and hasattr(self, 'period_start') and self.period_end is not None and self.period_start is not None and self.period_end < self.period_start:
             raise ValidationError({"period_end": "End must be later than start"}, code="invalid")
         return super().clean()

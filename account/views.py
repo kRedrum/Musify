@@ -58,7 +58,6 @@ def delete_account(request: Request, pk) -> Response:
     pk = request.data['id']
     account = Account.objects.get(pk=pk)
     serialized = AccountSerializer(data=account, many=False)
-
     account.delete()
     return Response(serialized.data, status=HTTP_204_NO_CONTENT)
 

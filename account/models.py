@@ -1,4 +1,4 @@
-from django.db.models import CASCADE, Q, TextChoices, UniqueConstraint, Model, ForeignKey, DateField, CharField, PositiveIntegerField, BigIntegerField
+from django.db.models import CASCADE, Q, BooleanField, TextChoices, UniqueConstraint, Model, ForeignKey, DateField, CharField, PositiveIntegerField, BigIntegerField, Index
 from django.conf import settings
 from django.core.exceptions import ValidationError
 import calendar
@@ -11,13 +11,23 @@ class Account(Model):
         CREDIT_CARD = 'CRD', 'Card'
 
     expire = DateField(null=True)
+    status = CharField(null=False, max_length=10, default='active')
     type = CharField(choices=Types.choices, null=False, max_length=4)
     number = PositiveIntegerField(null=True, max_length=19)
+    active = BooleanField(null=False, default=True)
+    currency = CharField(null=False, max_length=3, default='HUF')
     balance = BigIntegerField(null=False, blank=False, default=0)
     description = CharField(null=False, blank=True, max_length=100)
     holder = ForeignKey(settings.AUTH_USER_MODEL, on_delete=CASCADE)
 
     class Meta:
+        ordering=['-expire']
+        indexes=[
+            Index(fields=['holder']),
+            Index(fields=['type']),
+            Index(fields=['expire']),
+
+        ]
         constraints = [
             UniqueConstraint(
                 condition=Q(type='CRD'),

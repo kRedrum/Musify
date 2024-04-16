@@ -1,7 +1,10 @@
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.response import Response
 from .models import Expense
 from .serializers import ExpenseSerializer
+from rest_framework.request import Request
 from django.utils import timezone
 
 # Create your views here.
@@ -42,9 +45,11 @@ class ExpenseViewSet(ModelViewSet):
 
         return self.queryset
     
-    def delete_by_period(self):
-        # delete record in given period
-        pass
+    def delete_by_period(self, request: Request):
+        self.queryset.filter(period_start__gte=request.POST.get('period_start'), 
+                             period_end__lte=request.POST.get('period_end'), 
+                             ).delete()
+        return Response(status=status.HTTP_200_OK, data="Deleted")
 
     def delete_by_type(self):
         # delete record with certain type in given period
