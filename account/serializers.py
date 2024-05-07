@@ -23,5 +23,5 @@ class AccountSerializer(ModelSerializer):
 
 
 class AccountListSerializer(ModelSerializer):
-    nrOfAccounts = Account.objects.count()
+    # nrOfAccounts = Account.objects.count()
     accounts = ListField(child=AccountSerializer())

@@ -28,7 +28,6 @@ class Account(Model):
     status = CharField(null=False, max_length=10, default="active")
     type = CharField(choices=Types.choices, null=False, max_length=4)
     number = PositiveIntegerField(null=True, max_length=19)
-    active = BooleanField(null=False, default=True)
     currency = CharField(null=False, max_length=3, default="HUF")
     balance = BigIntegerField(null=False, blank=False, default=0)
     description = CharField(null=False, blank=True, max_length=100)
