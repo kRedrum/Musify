@@ -1,6 +1,6 @@
 import datetime
 
-from django.db.models import Case, IntegerField, Sum, Value, When
+from django.db.models import Case, Exists, IntegerField, Q, Sum, Value, When
 from django.db.models.functions import Extract
 from django.utils import timezone
 from rest_framework import status
@@ -74,13 +74,13 @@ class TransactionViewSet(ModelViewSet):
             .annotate(
                 total_amount=Sum("amount"),
                 type=Case(
-                    When(expense=1, then=Value("expense")),
-                    When(income=1, then=Value("income")),
+                    When(~Q(expense__isnull=True), then=Value("expense")),
+                    When(~Q(income__isnull=True), then=Value("income")),
                 ),
             )
             .order_by("year", "month")
         )
-
+        print(qs)
         expense = []
         income = []
         for v in qs:

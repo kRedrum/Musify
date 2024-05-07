@@ -10,19 +10,18 @@ class Expense(models.Model):
         WEEKLY = "WKLY", "Weekly"
 
     class ExpenseType(models.TextChoices):
-        GROCERIES = "GRCRS", "Groceries"
-        UTILITIES = "UTLTS", "Utilities"
-        HEALTH = "HLTH", "Health"
-        TRANSPORT = "TRNPRT", "Transport"
-        HOME = "HOME", "Home"
-        CLOTHING = "CLTH", "Clothing"
-        DEBT = "DBT", "Debt"
-        GAS = "GS", "Gas"
-        OTHER = "OTHR", "Other"
+        ENTERTAINMENT = "Entertainment"
+        GROCERIES = "Groceries"
+        UTILITIES = "Utilities"
+        HEALTH = "Health"
+        TRANSPORT = "Transport"
+        HOME = "Home"
+        CLOTHING = "Clothing"
+        DEBT = "Debt"
+        GAS = "Gas"
+        OTHER = "Other"
 
-    type = models.CharField(
-        choices=ExpenseType.choices, max_length=6, default=ExpenseType.OTHER
-    )
+    type = models.CharField(choices=ExpenseType.choices, default=ExpenseType.OTHER)
     carvable = models.BooleanField(null=False, blank=False, default=False)
     amount = models.PositiveIntegerField(null=False, blank=False, default=0)
     period_start = models.DateField(null=True, blank=True)
@@ -31,6 +30,9 @@ class Expense(models.Model):
     recurrence_type = models.CharField(
         choices=RecurrenceTypes.choices, default=RecurrenceTypes.MONTHLY
     )
+
+    def __str__(self) -> str:
+        return f"{self.type} | {self.period_start} - {self.period_end} | {self.description}"
 
     def clean(self) -> None:
         if (

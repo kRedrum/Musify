@@ -21,3 +21,6 @@ class Transactions(models.Model):
 
     class Meta:
         indexes = [Index(fields=["account", "date"])]
+
+    def __str__(self) -> str:
+        return f"{self.name} - {self.amount}"
