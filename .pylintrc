@@ -1,3 +1,161 @@
+[MASTER]
+
+# Add files or directories to the blacklist. They should be base names, not
+# paths.
+ignore=CVS .git migrations/*
+
+# Pickle collected data for later comparisons.
+persistent=yes
+
+# List of plugins (as comma separated values of python modules names) to load,
+# usually to register additional checkers.
+load-plugins=pylint_django
+django-settings-module=fintrack.settings
+
 [MESSAGES CONTROL]
-disable=missing-docstring
-disable=no-member
+
+# Enable the message, report, category or checker with the given id(s). You can
+# either give multiple identifier separated by comma (,) or put this option
+# multiple time.
+#enable=
+
+# Disable the message, report, category or checker with the given id(s). You
+# can either give multiple identifier separated by comma (,) or put this option
+# multiple time (only on the command line, not in the configuration file where
+# it should appear only once).
+
+# Brain-dead errors regarding standard language features
+#   W0142 = *args and **kwargs support
+#   W0403 = Relative imports
+
+# Pointless whinging
+#   W0212 = Accessing protected attribute of client class
+#   W0613 = Unused argument
+#   R0903 = Too few public methods
+#   C0301 = Line too long
+#   R0913 = Too many arguments
+#   C0103 = Invalid name
+#   R0914 = Too many local variables
+
+# PyLint's module importation is unreliable
+#   F0401 = Unable to import module
+#   W0402 = Uses of a deprecated module
+
+# Already an error when wildcard imports are used
+#   W0614 = Unused import from wildcard
+
+# Sometimes disabled depending on how bad a module is
+#   C0111 = Missing docstring
+
+# Disable the message(s) with the given id(s).
+disable=W0212,W0613,R0903,W0614,C0111,C0301,R0913,C0103,F0401,W0402,R0914,I0011,R0901
+
+[REPORTS]
+
+# Set the output format. Available formats are text, parseable, colorized, msvs
+# (visual studio) and html
+output-format=colorized
+fail-under=8.0
+
+# Tells whether to display a full report or only the messages
+reports=yes
+score=yes
+
+# Python expression which should return a note less than 10 (10 is the highest
+# note). You have access to the variables errors warning, statement which
+# respectively contain the number of errors / warnings messages and the total
+# number of statements analyzed. This is used by the global evaluation report
+# (RP0004).
+evaluation=10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)
+
+
+[BASIC]
+module-rgx=(([a-z_][a-z_]*)|([A-Z][a-zA-Z]+))$
+const-rgx=(([A-Z_][A-Z_]*)|(__.*__))$
+class-rgx=[A-Z_][a-zA-Z]+$
+function-rgx=[a-z_][a-z_]{2,30}$
+method-rgx=[a-z_][a-z_]{2,30}$
+attr-rgx=[a-z_][a-z_]{2,30}$
+argument-rgx=[a-z_][a-z_]{2,30}$
+variable-rgx=[a-z_][a-z_]{2,30}$
+inlinevar-rgx=[A-Za-z_][A-Za-z_]*$
+good-names=i,j,k,x,y,z,qs
+bad-names=foo,bar,baz,test
+no-docstring-rgx=__.*__
+
+
+[FORMAT]
+
+max-line-length=80
+indent-string='    '
+
+[SIMILARITIES]
+
+# Minimum lines number of a similarity.
+min-similarity-lines=6
+
+# Ignore comments when computing similarities.
+ignore-comments=yes
+
+# Ignore docstrings when computing similarities.
+ignore-docstrings=yes
+
+
+[TYPECHECK]
+
+# Tells whether missing members accessed in mixin class should be ignored. A
+# mixin class is detected if its name ends with "mixin" (case insensitive).
+ignore-mixin-members=yes
+
+# List of classes names for which member attributes should not be checked
+# (useful for classes with attributes dynamically set).
+ignored-classes=
+
+# List of members which are set dynamically and missed by pylint inference
+# system, and so shouldn't trigger E0201 when accessed. Python regular
+# expressions are accepted.
+generated-members=REQUEST,acl_users
+
+
+[VARIABLES]
+
+# Tells whether we should check for unused import in __init__ files.
+init-import=no
+dummy-variables-rgx=
+
+
+[CLASSES]
+
+# List of method names used to declare (i.e. assign) instance attributes.
+defining-attr-methods=__init__,__new__,setUp
+
+
+[DESIGN]
+
+# Maximum number of arguments for function / method
+max-args=5
+
+# Argument names that match this expression will be ignored. Default to name
+# with leading underscore
+ignored-argument-names=_.*
+
+# Maximum number of locals for function / method body
+max-locals=15
+
+# Maximum number of return / yield for function / method body
+max-returns=6
+
+# Maximum number of statements in function / method body
+max-statements=50
+
+# Maximum number of parents for a class (see R0901).
+max-parents=7
+
+# Maximum number of attributes for a class (see R0902).
+max-attributes=7
+
+# Minimum number of public methods for a class (see R0903).
+min-public-methods=2
+
+# Maximum number of public methods for a class (see R0904).
+max-public-methods=20

@@ -2,3 +2,7 @@ factory_boy
 faker
 pytest
 pytest-django
+pre-commit
+python-pip
+pylint
+pylint-django
