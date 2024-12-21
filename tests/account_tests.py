@@ -1,5 +1,3 @@
-import unittest
-
 from django.contrib.auth.models import User
 from rest_framework.serializers import ValidationError
 from rest_framework.test import APITestCase

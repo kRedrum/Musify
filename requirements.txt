@@ -3,6 +3,5 @@ djangorestframework
 django-filter
 djangorestframework-simplejwt
 django-cors-headers
-factory_boy
 psycopg2
 python-dotenv
