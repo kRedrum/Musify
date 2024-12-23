@@ -11,9 +11,9 @@ class AccountSerializer(ModelSerializer):
         fields = "__all__"
 
     def validate(self, attrs):
-        if attrs["type"] == "CRD" and len(attrs["number"]) == 0:
+        if attrs["type"] == "IBAN" and 15 < len(attrs["number"]) < 34:
             raise ValidationError(
-                {"number": "Cards must have a number"}, code="required"
+                {"number": "Ibans must have a number"}, code="required"
             )
         if attrs["type"] == "CSH" and len(attrs["number"]) > 0:
             raise ValidationError(

@@ -22,12 +22,12 @@ from django.db.models import (
 class Account(Model):
     class Types(TextChoices):
         CASH = "CSH", "Cash"
-        CREDIT_CARD = "CRD", "Card"
+        IBAN = "IBAN", "International Bank Account Number"
 
     expire = DateField(null=True)
     status = CharField(null=False, max_length=10, default="active")
-    type = CharField(choices=Types.choices, null=False, max_length=4)
-    number = PositiveIntegerField(null=True, max_length=19)
+    type = CharField(choices=Types.choices, null=False, max_length=4, default=Types.IBAN)
+    number = PositiveIntegerField(null=True)
     currency = CharField(null=False, max_length=3, default="HUF")
     balance = BigIntegerField(null=False, blank=False, default=0)
     description = CharField(null=False, blank=True, max_length=100)
@@ -42,19 +42,25 @@ class Account(Model):
         ]
         constraints = [
             UniqueConstraint(
-                condition=Q(type="CRD"), fields=["number", "holder"], name="unique-card"
+                condition=Q(type="IBAN"),
+                fields=["number", "holder"],
+                name="unique-card",
             )
         ]
 
     def clean(self) -> None:
-        if hasattr(self, "currency") is True and len(self.currency) != 3:
+        if hasattr(self, "currency") == True and len(self.currency) != 3:
             raise ValidationError(
                 {"currency": "Currency must be 3 characters long (ISO 4217)"},
                 code="invalid",
             )
-        if hasattr(self, "number") is False and self.type == "CRD":
+        if (
+            hasattr(self, "number") == False
+            and self.type == "IBAN"
+            and 15 < self.number < 34
+        ):
             raise ValidationError(
-                {"number": "Cards must have a number"}, code="required"
+                {"number": "Iban must have a number"}, code="required"
             )
         if hasattr(self, "number") and self.type == "CSH":
             raise ValidationError(

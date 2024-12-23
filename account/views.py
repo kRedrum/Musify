@@ -11,10 +11,20 @@ from rest_framework.status import (
     HTTP_403_FORBIDDEN,
 )
 from rest_framework.viewsets import ModelViewSet
-
 from account.models import Account
 from account.serializers import AccountListSerializer, AccountSerializer
 
+external_apis = [
+    {
+        "url": "https://api.iban.com/clients/api/v4/iban/",
+        "name": "IBAN",
+        "description": "External API for validating IBAN numbers",
+    }
+]
+
+def validate_iban(iban: int) -> bool:
+    pass
+    
 
 @api_view(["GET"])
 def retrieve(request: Request, pk):

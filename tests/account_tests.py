@@ -16,7 +16,7 @@ class AccountTests(APITestCase):
     def test_empty_card_number(self) -> None:
         payload = {
             "expire": "2034-03-10",
-            "type": "CRD",
+            "type": "IBAN",
             "holder": self.user.pk,
             "balance": 100000,
             "description": "Mastercard",
@@ -33,7 +33,7 @@ class AccountTests(APITestCase):
     def test_delete_user_account(self) -> None:
         payload = {
             "expire": "2035-03-10",
-            "type": "CRD",
+            "type": "IBAN",
             "holder": self.user.pk,
             "number": 12345678912345678,
             "balance": 100000,
@@ -46,7 +46,7 @@ class AccountTests(APITestCase):
     def test_update_user_account(self) -> None:
         payload = {
             "expire": "2035-03-10",
-            "type": "CRD",
+            "type": "IBAN",
             "holder": self.user.pk,
             "number": 12345678912345678,
             "balance": 100000,
@@ -61,7 +61,7 @@ class AccountTests(APITestCase):
     def test_create_accont(self) -> None:
         payload = {
             "expire": "2035-03-10",
-            "type": "CRD",
+            "type": "IBAN",
             "holder": self.user.pk,
             "number": 12345678912345678,
             "balance": 100000,
@@ -73,7 +73,7 @@ class AccountTests(APITestCase):
     def test_past_expiration_date(self) -> None:
         payload = {
             "expire": "2015-03-10",
-            "type": "CRD",
+            "type": "IBAN",
             "holder": self.user.pk,
             "number": 12345678912345678,
             "balance": 100000,
