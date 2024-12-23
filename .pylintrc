@@ -2,14 +2,14 @@
 
 # Add files or directories to the blacklist. They should be base names, not
 # paths.
-ignore=CVS .git migrations/*
+ignore=.git migrations/*
 
 # Pickle collected data for later comparisons.
 persistent=yes
 
 # List of plugins (as comma separated values of python modules names) to load,
 # usually to register additional checkers.
-load-plugins=pylint_django
+load-plugins=pylint_django, pylint-json2html
 django-settings-module=fintrack.settings
 
 [MESSAGES CONTROL]
