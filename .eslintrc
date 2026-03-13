@@ -1,0 +1,15 @@
+{
+  "env": {
+      "browser": true,
+      "es2021": true,
+      "node": true
+  },
+  "extends": ["next/core-web-vitals", "plugin:react/recommended", "plugin:prettier/recommended", "eslint:recommended"],
+  "parserOptions": {
+      "ecmaVersion": 12,
+      "sourceType": "module",
+      "project": ["./jsconfig.json"]
+  },
+  "plugins": ["react"],
+  "rules": {}
+}

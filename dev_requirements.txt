@@ -1,5 +1,0 @@
-pre-commit
-python-pip
-pylint
-pylint-django
-pylint-json2html

@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body, html {
+  background-color: #222831 
+}
+
+@layer components {
+  .sidebar-item {
+    @apply flex p-2 
+            border rounded-lg border-none hover:cursor-pointer
+             hover:bg-neutral-800/50 hover:text-primary transition-all duration-300 ease-in;
+  }
+}
