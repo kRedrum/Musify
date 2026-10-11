@@ -17,13 +17,15 @@ export class ServerBuilder {
   }
 
   public configureApplication(basePath: string): ServerBuilder {
+    const router = this.app.router
+
     const trackRepository = new TrackRepository()
     const scannerService = new ScannerService(trackRepository)
     const libraryController = new ItemController(scannerService)
-    const router = express.Router()
 
     libraryController.registerRoutes(router)
-    this.app.use(basePath, router)
+
+    this.app.use('/api', router)
     return this
   }
 
@@ -52,13 +54,7 @@ export class ServerBuilder {
       return this
     }
     this.app.use(express.static(staticPath))
-    this.app.router.use("web", (req, res, next) => {
-      if (req.method === 'GET') {
-        res.sendFile(staticPath + '/index.html')
-      } else {
-        next()
-      }
-    })
+
     return this
   }
 

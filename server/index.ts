@@ -2,7 +2,7 @@ import OpenApiGenerator from './OpenApiGenerator'
 import { ServerBuilder } from './ServerBuilder'
 import path from 'path'
 
-const main = async () => {
+const main = () => {
   const baseUrl = process.env.BASE_URL || '/api'
   const port = Number(process.env.HTTP_PORT || 80)
   const host = process.env.HOST || '127.0.0.1'
@@ -14,7 +14,7 @@ const main = async () => {
     .addRealIP()
     .createAppPaths(config)
     .addSecurityHeaders(trustProxy)
-    .addClientStaticBuildArtifact(clientDistPath, '/')
+    .addClientStaticBuildArtifact(clientDistPath)
     .configureApplication(baseUrl)
     .build()
 

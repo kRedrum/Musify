@@ -4,8 +4,8 @@
   "type": "commonjs",
   "description": "",
   "scripts": {
-    "server:start": "dotenvx run -f ./.env -- tsx index.ts",
-    "server:dev": "dotenvx run -f ./.env -- tsx --watch index.ts",
+    "server:start": "dotenvx run -f ../.env -- tsx index.ts",
+    "server:dev": "dotenvx run -f ../.env -- tsx --watch index.ts",
     "lint": "eslint --fix"
   },
   "keywords": [

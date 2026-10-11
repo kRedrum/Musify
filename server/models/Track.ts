@@ -92,16 +92,7 @@ export class Track extends Model<InferAttributes<Track>, InferCreationAttributes
     Track.belongsTo(TrackMetadata, {
       as: 'metadata'
     })
-
-    Track.belongsTo(Album, {
-      as: 'album'
-    })
-
-    Album.hasMany(Track, {
-      as: 'track'
-    })
   }
-
 }
 
 export type NewTrackObject = InferCreationAttributes<Track> & {

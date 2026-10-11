@@ -1,0 +1,121 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Musify API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/api"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "basicAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {},
+    "parameters": {}
+  },
+  "paths": {
+    "/items/scan": {
+      "post": {
+        "summary": "Scan configured path for music and retrive metadata",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "music path scan succesfull"
+          },
+          "401": {
+            "description": "user is not authorized"
+          },
+          "403": {
+            "description": "A user with admin permission is needed"
+          },
+          "404": {
+            "description": "Could not find path for music scan"
+          }
+        }
+      }
+    },
+    "/items/{itemId}": {
+      "delete": {
+        "summary": "Deletes given item",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "hard",
+            "in": "query"
+          }
+        ],
+        "responses": {}
+      },
+      "get": {
+        "summary": "Retrieves given item",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/items/metadata/{trackId}": {
+      "patch": {
+        "summary": "Update track metadata",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Track sucesfully updated"
+          }
+        }
+      },
+      "get": {
+        "summary": "Retrieve track metadata",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item metadata retrieved successfully"
+          }
+        }
+      }
+    },
+    "/items/metadata/{trackId}/external": {
+      "get": {
+        "summary": "Retrieve track metadata from external providers",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "External item metadata retrieved successfully"
+          }
+        }
+      }
+    }
+  }
+}
