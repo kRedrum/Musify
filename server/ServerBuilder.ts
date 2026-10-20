@@ -7,6 +7,9 @@ import { ItemController } from './controllers/item.controller'
 import { ScannerService } from './services/scanner.service'
 import TrackRepository from './repository/track.repository'
 import fs from 'fs'
+import FileMetadataService from './services/file.metadata.service'
+import AlbumService from './services/album.service'
+import AlbumRepository from './repository/album.repository'
 
 export class ServerBuilder {
   private readonly TAG = this.constructor.name
@@ -16,11 +19,19 @@ export class ServerBuilder {
     this.app = express()
   }
 
-  public configureApplication(basePath: string): ServerBuilder {
+  public configureApplication(): ServerBuilder {
     const router = this.app.router
 
+    // --> Repositories
     const trackRepository = new TrackRepository()
-    const scannerService = new ScannerService(trackRepository)
+    const albumRepository = new AlbumRepository()
+
+    // --> Services
+    const albumService = new AlbumService(albumRepository)
+    const fileMetadataService = new FileMetadataService()
+    const scannerService = new ScannerService(trackRepository, albumRepository, fileMetadataService)
+
+    // --> Controllers
     const libraryController = new ItemController(scannerService)
 
     libraryController.registerRoutes(router)
@@ -54,7 +65,6 @@ export class ServerBuilder {
       return this
     }
     this.app.use(express.static(staticPath))
-
     return this
   }
 

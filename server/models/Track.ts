@@ -7,12 +7,11 @@ import {
   Sequelize,
   Association
 } from 'sequelize'
-import { TrackMetadata } from './TrackMetadata'
 import { Album } from './Album'
-import { Artist } from './Artist'
 
 export class Track extends Model<InferAttributes<Track>, InferCreationAttributes<Track>> {
   declare id: CreationOptional<string>
+  declare AlbumId: string
   declare isMissing: CreationOptional<boolean>
   declare path: string
   declare rel_path: CreationOptional<string | null>
@@ -21,9 +20,13 @@ export class Track extends Model<InferAttributes<Track>, InferCreationAttributes
   declare mtime: CreationOptional<Date | null>
   declare size: CreationOptional<number | null>
   declare inode: CreationOptional<number | null>
+  declare name: string | null
+  declare num: number | null
+  declare duration: number | null
+  declare format: string | null
+  declare bitrate: number | null
 
   declare static associations: {
-    metadata: Association<Track, TrackMetadata>
     album: Association<Track, Album>
   }
 
@@ -34,6 +37,10 @@ export class Track extends Model<InferAttributes<Track>, InferCreationAttributes
           type: DataTypes.UUID,
           defaultValue: DataTypes.UUIDV4,
           primaryKey: true
+        },
+        AlbumId: {
+          type: DataTypes.UUID,
+          allowNull: false
         },
         isMissing: {
           type: DataTypes.BOOLEAN,
@@ -72,6 +79,27 @@ export class Track extends Model<InferAttributes<Track>, InferCreationAttributes
           unique: true,
           allowNull: true,
           comment: 'Filesystem inode number'
+        },
+        name: {
+          type: DataTypes.STRING,
+          allowNull: true
+        },
+        num: {
+          type: DataTypes.INTEGER,
+          allowNull: true,
+          comment: 'Number of the track in the album'
+        },
+        duration: {
+          type: DataTypes.INTEGER,
+          allowNull: true
+        },
+        format: {
+          type: DataTypes.STRING,
+          allowNull: true
+        },
+        bitrate: {
+          type: DataTypes.INTEGER,
+          allowNull: true
         }
       },
       {
@@ -84,20 +112,10 @@ export class Track extends Model<InferAttributes<Track>, InferCreationAttributes
     )
   }
 
-  public static associate(): void {
-    TrackMetadata.hasOne(Track, {
-      as: 'track'
+  public static asssociate(): void {
+    Album.hasMany(Track, {
+      as: 'track',
+      foreignKey: 'AlbumId'
     })
-
-    Track.belongsTo(TrackMetadata, {
-      as: 'metadata'
-    })
-  }
-}
-
-export type NewTrackObject = InferCreationAttributes<Track> & {
-  metadata: InferCreationAttributes<TrackMetadata>
-  album: InferCreationAttributes<Album> & {
-    artist: InferCreationAttributes<Artist>
   }
 }

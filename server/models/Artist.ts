@@ -4,7 +4,8 @@ import {
   InferCreationAttributes,
   CreationOptional,
   Model,
-  Sequelize
+  Sequelize,
+  Association
 } from 'sequelize'
 import { Album } from './Album'
 
@@ -17,6 +18,10 @@ export class Artist extends Model<InferAttributes<Artist>, InferCreationAttribut
   declare description: CreationOptional<string | null>
   declare area: CreationOptional<string | null>
   declare type: CreationOptional<string | null>
+
+  declare static associations: {
+    album: Association<Album, Artist>
+  }
 
   public static initialize(sequelize: Sequelize): void {
     Artist.init(
@@ -67,7 +72,9 @@ export class Artist extends Model<InferAttributes<Artist>, InferCreationAttribut
   }
 
   public static associate(): void {
-    Artist.hasMany(Album)
-    Album.belongsTo(Artist)
+    Artist.hasMany(Album, {
+      as: 'albums',
+      foreignKey: 'ArtistId'
+    })
   }
 }

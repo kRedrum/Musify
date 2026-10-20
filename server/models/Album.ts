@@ -4,9 +4,11 @@ import {
   InferCreationAttributes,
   CreationOptional,
   Model,
+  NonAttribute,
   Sequelize
 } from 'sequelize'
 import { Track } from './Track'
+import { Artist } from './Artist'
 
 export class Album extends Model<InferAttributes<Album>, InferCreationAttributes<Album>> {
   declare id: CreationOptional<string>
@@ -20,6 +22,7 @@ export class Album extends Model<InferAttributes<Album>, InferCreationAttributes
   declare genre: CreationOptional<string | null>
   declare released_at: CreationOptional<string | Date | null>
   declare type: CreationOptional<string>
+  declare artist?: NonAttribute<Artist>
 
   public static initialize(sequelize: Sequelize): void {
     Album.init(
@@ -83,11 +86,8 @@ export class Album extends Model<InferAttributes<Album>, InferCreationAttributes
         timestamps: false,
         indexes: [
           {
-            fields: ['path'],
+            fields: ['name', 'ArtistId'],
             unique: true
-          },
-          {
-            fields: ['rel_path']
           }
         ]
       }
@@ -95,12 +95,16 @@ export class Album extends Model<InferAttributes<Album>, InferCreationAttributes
   }
 
   public static associate(): void {
-    Track.belongsTo(Album, {
-      as: 'album'
+    Album.belongsTo(Artist, {
+      as: 'artist',
+      foreignKey: 'ArtistId'
     })
 
-    Album.hasMany(Track, {
-      as: 'track'
+    Track.belongsTo(Album, {
+      as: 'album',
+      foreignKey: 'AlbumId'
     })
+
+
   }
 }

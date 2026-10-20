@@ -3,7 +3,7 @@ import fs from 'fs'
 import { logger } from '../logger'
 import { ScannerService } from '../services/scanner.service'
 import { ItemUpdateRequestSchema } from '../types/track.types'
-import { validateRequest } from '../utils/validation'
+import { validateRequest } from '../utils'
 
 export class ItemController {
   private readonly TAG = this.constructor.name

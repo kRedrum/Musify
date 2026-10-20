@@ -1,7 +1,8 @@
-import { Op } from 'sequelize'
+import { InferCreationAttributes, Op } from 'sequelize'
 import { logger } from '../logger'
-import { Album } from '../models/Album'
-import { Track, NewTrackObject } from '../models/Track'
+import { Track } from '../models/Track'
+import { Stats } from 'node:fs'
+import { Album } from '../models'
 
 class TrackRepository {
   private readonly TAG = this.constructor.name
@@ -9,53 +10,76 @@ class TrackRepository {
   constructor() {}
 
   public getAllTracks = async (): Promise<Track[]> => {
-    return Track.findAll()
+    return Track.findAll({ include: { } })
   }
 
-  public update = async (
-    existingTrack: Track,
-    newTrack: {
-      size: number | null
-      ino: number | null
-      path: string
-      mtime: Date
-      atime: Date
-      ctime: Date
-    }
-  ): Promise<void> => {
-    const updatedFields: string[] = []
+  public create = async (track: InferCreationAttributes<Track>): Promise<Track> => {
+    return Track.create({ ...track })
+  }
 
-    if (existingTrack.size !== newTrack.size) {
+  public updateTracksMissingIds = async (idsToKeep: string[]): Promise<[number]> => {
+    return Track.update({ isMissing: true }, { where: { id: { [Op.notIn]: idsToKeep } } })
+  }
+
+  public update = async (existingTrack: Track, newTrack: InferCreationAttributes<Track>): Promise<void> => {
+    const updatedFields = []
+
+    if (existingTrack.name !== newTrack.name) {
+      existingTrack.name = newTrack.name
+      updatedFields.push('name')
+    }
+
+    if (existingTrack.num !== newTrack.num) {
+      existingTrack.num = newTrack.num
+      updatedFields.push('num')
+    }
+
+    if (existingTrack.duration !== newTrack.duration) {
+      existingTrack.duration = newTrack.duration
+      updatedFields.push('duration')
+    }
+
+    if (existingTrack.format !== newTrack.format) {
+      existingTrack.format = newTrack.format
+      updatedFields.push('format')
+    }
+
+    if (existingTrack.bitrate !== newTrack.bitrate) {
+      existingTrack.bitrate = newTrack.bitrate
+      updatedFields.push('bitrate')
+    }
+
+    if (newTrack.size && existingTrack.size !== newTrack.size) {
       logger.info(`[${this.TAG}]: file size has changed, updating track`)
       existingTrack.size = newTrack.size
       updatedFields.push('size')
     }
 
-    if (existingTrack.inode !== newTrack.ino) {
+    if (newTrack.inode && existingTrack.inode !== newTrack.inode) {
       logger.debug(`[${this.TAG}]: file inode has changed, updating track`)
-      existingTrack.inode = newTrack.ino
+      existingTrack.inode = newTrack.inode
       updatedFields.push('inode')
     }
 
-    if (existingTrack.path !== newTrack.path) {
+    if (newTrack.path && existingTrack.path !== newTrack.path) {
       logger.info(`[${this.TAG}]: file path has changed, updating track`)
       existingTrack.path = newTrack.path
       updatedFields.push('path')
     }
 
-    if (existingTrack.mtime?.valueOf() !== newTrack.mtime.valueOf()) {
+    if (newTrack.mtime && existingTrack.mtime?.valueOf() !== newTrack.mtime.valueOf()) {
       logger.info(`[${this.TAG}]: file mtime has changed, updating track`)
       existingTrack.mtime = newTrack.mtime
       updatedFields.push('mtime')
     }
 
-    if (existingTrack.atime?.valueOf() !== newTrack.atime.valueOf()) {
+    if (newTrack.atime && existingTrack.atime?.valueOf() !== newTrack.atime.valueOf()) {
       logger.info(`[${this.TAG}]: file atime has changed, updating track`)
       existingTrack.atime = newTrack.atime
       updatedFields.push('atime')
     }
 
-    if (existingTrack.ctime?.valueOf() !== newTrack.ctime.valueOf()) {
+    if (newTrack.ctime && existingTrack.ctime?.valueOf() !== newTrack.ctime.valueOf()) {
       logger.info(`[${this.TAG}]: file ctime has changed, updating track`)
       existingTrack.ctime = newTrack.ctime
       updatedFields.push('ctime')
@@ -69,28 +93,7 @@ class TrackRepository {
     }
   }
 
-  public createWithAssociations = async (track: NewTrackObject): Promise<Track> => {
-    return Track.create(
-      { ...track },
-      {
-        include: [
-          { association: Track.associations.metadata },
-          {
-            association: Track.associations.album,
-            include: [{ association: Album.associations.artist }]
-          }
-        ]
-      }
-    )
-  }
 
-  public updateTracksMissingIds = async (idsToKeep: string[]): Promise<[number]> => {
-    if (idsToKeep.length === 0) {
-      return [0]
-    }
-
-    return Track.update({ isMissing: true }, { where: { id: { [Op.notIn]: idsToKeep } } })
-  }
 }
 
 export default TrackRepository

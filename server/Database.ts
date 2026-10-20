@@ -1,7 +1,7 @@
 import path from 'path'
-import { Sequelize, ModelStatic, Model } from 'sequelize'
+import { QueryTypes, Sequelize, ModelStatic, Model } from 'sequelize'
 import { logger } from './logger'
-import { Album, ApiKey, Artist, Policy, PolicyUser, Track, TrackMetadata, User } from './models'
+import { Album, ApiKey, Artist, Policy, PolicyUser, Track, User } from './models'
 
 class Database {
   private readonly TAG = this.constructor.name
@@ -34,7 +34,6 @@ class Database {
     PolicyUser.initialize(this.instance)
     ApiKey.initialize(this.instance)
     Track.initialize(this.instance)
-    TrackMetadata.initialize(this.instance)
     Album.initialize(this.instance)
     Artist.initialize(this.instance)
   }
@@ -48,8 +47,6 @@ class Database {
     User.associate()
     PolicyUser.associate()
     ApiKey.associate()
-    Track.associate()
-    // TrackMetadata.associate()
     Album.associate()
     Artist.associate()
   }
@@ -85,9 +82,11 @@ class Database {
       process.exit(1)
     }
 
-    this.check()
+    await this.check()
     this.defineModels()
     this.associateModels()
+    await this.sequelize.sync()
+    logger.info(`[${this.TAG}]: Database models are synchronized.`)
   }
 }
 

@@ -1,7 +1,7 @@
 import { Request } from 'express'
 import { z } from 'zod'
-import { logger } from '../logger'
-import { RequestSchema } from '../types/base.types'
+import { logger } from './logger'
+import { RequestSchema } from './types/base.types'
 
 export const validateRequest = <T extends RequestSchema> (req: Request, schema: T) => {
   const validationResult = z.object(schema).safeParse({

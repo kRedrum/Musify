@@ -29,8 +29,8 @@ class Server {
   }
 
 
-  public initializeDatabase(configPath: string): void {
-    Database.init(path.join(configPath, 'db'))
+  public async initializeDatabase(configPath: string): Promise<void> {
+    return Database.init(path.join(configPath, 'db'))
   }
 }
 

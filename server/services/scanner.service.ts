@@ -4,13 +4,18 @@ import { logger } from '../logger.ts'
 import { Track } from '../models/Track.ts'
 import fs from 'fs/promises'
 import TrackRepository from '../repository/track.repository.ts'
+import FileMetadataService from './file.metadata.service.ts'
+import AlbumRepository from '../repository/album.repository.ts'
 
 export class ScannerService {
   private readonly TAG = this.constructor.name
   private isScanning = false
 
-  constructor(private readonly trackRepository: TrackRepository) {
-  }
+  constructor(
+    private readonly trackRepository: TrackRepository,
+    private readonly albumRepository: AlbumRepository,
+    private readonly fileService: FileMetadataService
+  ) {}
 
   public async scan(folderPath: string): Promise<void> {
     if (this.isScanning) {
@@ -20,9 +25,9 @@ export class ScannerService {
 
     this.isScanning = true
 
-    try {
-      logger.info(`[${this.TAG}]: Starting scan for folder: ${folderPath}`)
+    logger.info(`[${this.TAG}]: Starting scan for folder: ${folderPath}`)
 
+    try {
       const existingLibraryTracks = await this.trackRepository.getAllTracks()
       const foundLibraryItems = new Set<Track['id']>()
 
@@ -39,47 +44,67 @@ export class ScannerService {
         })
       )
 
-      for (const { file, fileStat } of filesWithStats) {
+      for (const { file: filePath, fileStat } of filesWithStats) {
         const existingTrack = existingLibraryTracks.find((track) => {
-          if (track.path === file && track.inode !== fileStat.ino) {
+          if (track.path === filePath && track.inode !== fileStat.ino) {
             logger.debug(`[${this.TAG}]: file path is the same, but inode has changed: ${fileStat.ino}`)
             return true
           }
 
-          if (track.path !== file && track.inode === fileStat.ino) {
+          if (track.path !== filePath && track.inode === fileStat.ino) {
             logger.debug(`[${this.TAG}]: file path has changed, but inode is the same: ${fileStat.ino}`)
             return true
           }
 
-          if (track.path !== file && track.inode !== fileStat.ino) {
+          if (track.path !== filePath && track.inode !== fileStat.ino) {
             logger.debug(`[${this.TAG}]: file path and inode have changed: ${fileStat.ino}`)
             return false
           }
 
-          if (track.path === file && track.inode === fileStat.ino) {
-            logger.debug(`[${this.TAG}]: file path and inode are the same, skipping: ${fileStat.ino}`)
+          if (track.path === filePath && track.inode === fileStat.ino) {
+            logger.debug(`[${this.TAG}]: file path and inode are the same: ${fileStat.ino}`)
             return true
           }
 
           return false
         })
 
-        if (existingTrack) {
-          await this.trackRepository.update(existingTrack, {
-            ...fileStat,
-            path: file
-          })
+        const fileMetadata = await this.fileService.getFileMetadata(filePath)
+        if (!fileMetadata) {
+          logger.info(`[${this.TAG}]: Couldn't find metadata for: ${filePath}`)
         } else {
-          // const trackWithAssociations = await buildNewTrackObject(file, fileStat)
-          // await createWithAssociations(trackWithAssociations)
+          // album = await this.albumRepository.findOrCreate(fileMetadata)
+        }
+
+        if (existingTrack) {
+          foundLibraryItems.add(existingTrack.id)
+          // await this.trackRepository.update(existingTrack, {
+          //   ...fileStat,
+          //   path: filePath
+          // })
+        } else {
+          // const createdTrack = await this.trackRepository.create({
+          //   isMissing: false,
+          //   path: filePath,
+          //   atime: fileStat.atime,
+          //   ctime: fileStat.ctime,
+          //   mtime: fileStat.mtime,
+          //   size: fileStat.size,
+          //   inode: fileStat.ino,
+          //   AlbumId: album.id,
+          //   bitrate: fileMetadata.bitrate,
+          //   duration: fileMetadata.duration,
+          //   format: fileMetadata.format_name
+          // })
+          // foundLibraryItems.add(createdTrack.id)
         }
       }
-      if (foundLibraryItems.size > 0) {
-        await this.trackRepository.updateTracksMissingIds([...foundLibraryItems])
-        logger.info(
-          `[${this.TAG}]: Marked ${existingLibraryTracks.length - foundLibraryItems.size} tracks as missing`
-        )
-      }
+
+      await this.trackRepository.updateTracksMissingIds([...foundLibraryItems])
+      const missingTracksCount = existingLibraryTracks.filter(
+        (track) => !foundLibraryItems.has(track.id)
+      ).length
+      logger.info(`[${this.TAG}]: Marked ${missingTracksCount} tracks as missing`)
     } finally {
       this.isScanning = false
     }
