@@ -1,61 +1,47 @@
 import { Album } from '../models/Album'
 import { Artist } from '../models/Artist'
 import { logger } from '../logger'
-import { FileMetadataTags } from '../types/file.type'
+import { InferCreationAttributes } from 'sequelize'
 
 class AlbumRepository {
   private readonly TAG = this.constructor.name
 
-  public findByNameAndArtist = async (name: string, artistName: string): Promise<Album | null> => {
+  public findByNameAndArtist = async (name: string | null, artistName: string | null): Promise<Album | null> => {
     return Album.findOne({ where: { name }, include: [{ model: Artist, where: { name: artistName } }] })
   }
 
-  public createByName = async (metadata: FileMetadataTags | null): Promise<void> => {
-    // const name = metadata?.format_tag_album_name?.trim() || 'unknown'
-    // const artistName = metadata?.format_tag_album_artist?.trim() || 'unknown'
-    // const [artist] = await Artist.findOrCreate({
-    //   where: { name: artistName },
-    //   defaults: { name: artistName }
-    // })
+  public update = async (existingAlbum: Album, newAlbum: Partial<InferCreationAttributes<Album>>) => {
+    const updatedFields: string[] = []
 
-    // const releasedAt = metadata?.format_tag_date ? `${metadata.format_tag_date}-01-01` : undefined
-    // const defaults = {
-    //   name,
-    //   ArtistId: artist.id,
-    //   genre: metadata?.format_tag_genre ?? null,
-    //   released_at: releasedAt ?? null,
-    //   disctotal: metadata?.format_tag_disctotal ?? null
-    // }
-    // const [album, created] = await Album.findOrCreate({
-    //   where: { name, ArtistId: artist.id },
-    //   defaults
-    // })
+    if (newAlbum?.genre && existingAlbum.genre !== newAlbum.genre) {
+      existingAlbum.genre = newAlbum.genre
+      updatedFields.push('genre')
+    }
+    if (newAlbum?.disctotal != null && existingAlbum.disctotal !== newAlbum.disctotal) {
+      existingAlbum.disctotal = newAlbum.disctotal
+      updatedFields.push('disctotal')
+    }
 
-    // if (created) {
-    //   return album
-    // }
+    if (updatedFields.length > 0) {
+      await existingAlbum.save()
+      logger.info(`[${this.TAG}]: Updated album metadata: ${updatedFields.join(', ')}`)
+    }
+  }
 
-    // const updatedFields: string[] = []
+  public createAlbum = async (name: string | null, artistName: string | null): Promise<Album | null> => {
+    if (!name && !artistName) {
+      return null
+    }
+    let album = await this.findByNameAndArtist(name, artistName)
 
-    // if (metadata?.format_tag_genre && album.genre !== metadata.format_tag_genre) {
-    //   album.genre = metadata.format_tag_genre
-    //   updatedFields.push('genre')
-    // }
-    // if (releasedAt && album.released_at !== releasedAt) {
-    //   album.released_at = releasedAt
-    //   updatedFields.push('released_at')
-    // }
-    // if (metadata?.format_tag_disctotal != null && album.disctotal !== metadata.format_tag_disctotal) {
-    //   album.disctotal = metadata.format_tag_disctotal
-    //   updatedFields.push('disctotal')
-    // }
+    if (!album) {
+      album = Album.build({
+        name: name
+      })
+    album = await album.save()
+    }
 
-    // if (updatedFields.length > 0) {
-    //   await album.save()
-    //   logger.info(`[${this.TAG}]: Updated album metadata: ${updatedFields.join(', ')}`)
-    // }
-
-    // return album
+    return album
   }
 }
 

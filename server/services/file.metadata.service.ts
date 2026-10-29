@@ -60,12 +60,12 @@ class FileMetadataService {
     })
   }
 
-  private getFormatTag = (key: string, probedData: any) => {
+  private getFormatTag = (key: string, probedData: any): string | null => {
     const tags = probedData?.format?.tags ?? {}
     const tagKey = Object.keys(tags).find((tagKey) => tagKey.toLowerCase() === key.toLowerCase())
     const tagValue = tagKey && tags[tagKey]
     if (!tagValue) {
-      logger.warn(
+      logger.debug(
         `[${this.TAG}]: Tag '${key}' not found in format tags, available tags: ${Object.keys(tags).join(', ')}`
       )
       return null
@@ -73,7 +73,8 @@ class FileMetadataService {
     return tagValue
   }
 
-  public calculateBitrate = () => {
+  public calculateBitrate = (): number => {
+    return 0
     // grep from format
     // or calculate from embeded data
   }
@@ -98,13 +99,13 @@ class FileMetadataService {
     }
 
     if (!probeData?.format) {
-      logger.warn(`[${this.TAG}]: No tags found in probed data for file ${filePath}`)
+      logger.debug(`[${this.TAG}]: No tags found in probed data for file ${filePath}`)
       return null
     }
 
     return {
-      format_tag_album_name: this.getFormatTag('album', probeData),
-      format_tag_album_artist: this.getFormatTag('album_artist', probeData),
+      format_tag_album_name: this.getFormatTag('album', probeData) || null,
+      format_tag_album_artist: this.getFormatTag('album_artist', probeData) || null,
       format_tag_composer: this.getFormatTag('composer', probeData),
       format_tag_title: this.getFormatTag('title', probeData),
       format_tag_genre: this.getFormatTag('genre', probeData),
@@ -113,13 +114,9 @@ class FileMetadataService {
       format_tag_tracktotal: parseInt(this.getFormatTag('tracktotal', probeData) || '', 10) || null,
       format_tag_disc: parseInt(this.getFormatTag('disc', probeData) || '', 10) || null,
       format_tag_disctotal: parseInt(this.getFormatTag('disctotal', probeData) || '', 10) || null,
-      format_name: probeData.format.format_name,
-      duration: Number.isFinite(Number(probeData.format.duration))
-        ? Math.round(Number(probeData.format.duration))
-        : null,
-      bitrate: Number.isFinite(Number(probeData.format.bit_rate))
-        ? Number(probeData.format.bit_rate)
-        : null
+      format_name: probeData.format.format_name || null,
+      duration: Math.round(Number(probeData.format.duration)),
+      bitrate: Number(probeData.format.bit_rate) || this.calculateBitrate()
     }
   }
 }

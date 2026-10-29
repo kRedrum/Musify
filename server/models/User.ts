@@ -6,6 +6,7 @@ import {
   Model,
   Sequelize
 } from 'sequelize'
+import { ApiKey } from './ApiToken'
 
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare id: CreationOptional<string>
@@ -55,6 +56,6 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
   }
 
   public static associate(): void {
-    // Associations can be added here when needed.
+    User.hasMany(ApiKey)
   }
 }

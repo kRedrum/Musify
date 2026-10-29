@@ -5,16 +5,23 @@ import {
   InferCreationAttributes,
   CreationOptional,
   Model,
-  Sequelize
+  Sequelize,
+  Association,
+  NonAttribute
 } from 'sequelize'
 import { User } from './User'
 
 export class ApiKey extends Model<InferAttributes<ApiKey>, InferCreationAttributes<ApiKey>> {
   declare id: CreationOptional<string>
   declare name: string
-  declare user_id: ForeignKey<User['id']>
   declare created_at: CreationOptional<Date>
   declare duration: number | null
+
+  declare users?: NonAttribute<User[]>
+
+  declare static associations: {
+    users: Association<ApiKey, User>
+  }
 
   public static initialize(sequelize: Sequelize): void {
     ApiKey.init(
@@ -27,14 +34,6 @@ export class ApiKey extends Model<InferAttributes<ApiKey>, InferCreationAttribut
         name: {
           type: DataTypes.STRING,
           allowNull: false
-        },
-        user_id: {
-          type: DataTypes.UUID,
-          allowNull: false,
-          references: {
-            model: User,
-            key: 'id'
-          }
         },
         created_at: {
           type: DataTypes.DATE,
@@ -57,12 +56,6 @@ export class ApiKey extends Model<InferAttributes<ApiKey>, InferCreationAttribut
   }
 
   public static associate(): void {
-    User.hasMany(ApiKey, {
-      foreignKey: 'user_id'
-    })
-
-    ApiKey.belongsTo(User, {
-      foreignKey: 'user_id'
-    })
+    ApiKey.belongsTo(User)
   }
 }

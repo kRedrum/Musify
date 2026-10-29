@@ -5,7 +5,18 @@ import {
   CreationOptional,
   Model,
   NonAttribute,
-  Sequelize
+  Sequelize,
+  HasManyGetAssociationsMixin,
+  HasManyAddAssociationMixin,
+  HasManyAddAssociationsMixin,
+  HasManySetAssociationsMixin,
+  HasManyRemoveAssociationMixin,
+  HasManyRemoveAssociationsMixin,
+  HasManyHasAssociationMixin,
+  HasManyHasAssociationsMixin,
+  HasManyCountAssociationsMixin,
+  HasManyCreateAssociationMixin,
+  Association
 } from 'sequelize'
 import { Track } from './Track'
 import { Artist } from './Artist'
@@ -13,7 +24,7 @@ import { Artist } from './Artist'
 export class Album extends Model<InferAttributes<Album>, InferCreationAttributes<Album>> {
   declare id: CreationOptional<string>
   declare title: CreationOptional<string>
-  declare name: CreationOptional<string>
+  declare name: string | null
   declare cover: CreationOptional<string | null>
   declare length: CreationOptional<number>
   declare format: CreationOptional<string | null>
@@ -22,7 +33,23 @@ export class Album extends Model<InferAttributes<Album>, InferCreationAttributes
   declare genre: CreationOptional<string | null>
   declare released_at: CreationOptional<string | Date | null>
   declare type: CreationOptional<string>
+
+  declare getArtist: HasManyGetAssociationsMixin<Artist>
+  declare addArtist: HasManyAddAssociationMixin<Artist, number>
+  declare addArtists: HasManyAddAssociationsMixin<Artist, number>
+  declare setArtist: HasManySetAssociationsMixin<Artist, number>
+  declare removeArtist: HasManyRemoveAssociationMixin<Artist, number>
+  declare removeArtists: HasManyRemoveAssociationsMixin<Artist, number>
+  declare hasArtist: HasManyHasAssociationMixin<Artist, number>
+  declare hasArtists: HasManyHasAssociationsMixin<Artist, number>
+  declare countArtist: HasManyCountAssociationsMixin
+  declare createArtist: HasManyCreateAssociationMixin<Artist, 'id'>
+
   declare artist?: NonAttribute<Artist>
+
+  declare static associations: {
+    artist: Association<Album, Artist>
+  }
 
   public static initialize(sequelize: Sequelize): void {
     Album.init(
@@ -39,8 +66,7 @@ export class Album extends Model<InferAttributes<Album>, InferCreationAttributes
         },
         name: {
           type: DataTypes.STRING,
-          allowNull: false,
-          defaultValue: 'unknown'
+          allowNull: true
         },
         cover: {
           type: DataTypes.STRING,
@@ -95,16 +121,7 @@ export class Album extends Model<InferAttributes<Album>, InferCreationAttributes
   }
 
   public static associate(): void {
-    Album.belongsTo(Artist, {
-      as: 'artist',
-      foreignKey: 'ArtistId'
-    })
-
-    Track.belongsTo(Album, {
-      as: 'album',
-      foreignKey: 'AlbumId'
-    })
-
-
+    Album.belongsTo(Artist)
+    Album.hasMany(Track)
   }
 }

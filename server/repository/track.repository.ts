@@ -1,8 +1,7 @@
-import { InferCreationAttributes, Op } from 'sequelize'
+import { Attributes, InferAttributes, InferCreationAttributes, Op } from 'sequelize'
 import { logger } from '../logger'
 import { Track } from '../models/Track'
-import { Stats } from 'node:fs'
-import { Album } from '../models'
+import { Album } from '../models/Album'
 
 class TrackRepository {
   private readonly TAG = this.constructor.name
@@ -10,41 +9,44 @@ class TrackRepository {
   constructor() {}
 
   public getAllTracks = async (): Promise<Track[]> => {
-    return Track.findAll({ include: { } })
+    return Track.findAll({ include: [{ model: Album }] })
   }
 
-  public create = async (track: InferCreationAttributes<Track>): Promise<Track> => {
-    return Track.create({ ...track })
+  public create = async (track: InferCreationAttributes<Track, { omit: 'id' }>): Promise<Track> => {
+    return Track.create(track)
   }
 
   public updateTracksMissingIds = async (idsToKeep: string[]): Promise<[number]> => {
     return Track.update({ isMissing: true }, { where: { id: { [Op.notIn]: idsToKeep } } })
   }
 
-  public update = async (existingTrack: Track, newTrack: InferCreationAttributes<Track>): Promise<void> => {
+  public update = async (
+    existingTrack: Track,
+    newTrack: Partial<InferCreationAttributes<Track>>
+  ): Promise<void> => {
     const updatedFields = []
 
-    if (existingTrack.name !== newTrack.name) {
+    if (newTrack.name && existingTrack.name !== newTrack.name) {
       existingTrack.name = newTrack.name
       updatedFields.push('name')
     }
 
-    if (existingTrack.num !== newTrack.num) {
+    if (newTrack.num && existingTrack.num !== newTrack.num) {
       existingTrack.num = newTrack.num
       updatedFields.push('num')
     }
 
-    if (existingTrack.duration !== newTrack.duration) {
+    if (newTrack.duration && existingTrack.duration !== newTrack.duration) {
       existingTrack.duration = newTrack.duration
       updatedFields.push('duration')
     }
 
-    if (existingTrack.format !== newTrack.format) {
+    if (newTrack.format && existingTrack.format !== newTrack.format) {
       existingTrack.format = newTrack.format
       updatedFields.push('format')
     }
 
-    if (existingTrack.bitrate !== newTrack.bitrate) {
+    if (newTrack.bitrate && existingTrack.bitrate !== newTrack.bitrate) {
       existingTrack.bitrate = newTrack.bitrate
       updatedFields.push('bitrate')
     }
@@ -92,8 +94,6 @@ class TrackRepository {
       logger.debug(`[${this.TAG}]: No fields updated for track: ${existingTrack.path}`)
     }
   }
-
-
 }
 
 export default TrackRepository

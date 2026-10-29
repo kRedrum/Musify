@@ -5,26 +5,49 @@ import {
   CreationOptional,
   Model,
   Sequelize,
-  Association
+  Association,
+  NonAttribute,
+  HasManyGetAssociationsMixin,
+  HasManyAddAssociationMixin,
+  HasManyAddAssociationsMixin,
+  HasManySetAssociationsMixin,
+  HasManyRemoveAssociationMixin,
+  HasManyRemoveAssociationsMixin,
+  HasManyHasAssociationMixin,
+  HasManyHasAssociationsMixin,
+  HasManyCountAssociationsMixin,
+  HasManyCreateAssociationMixin
 } from 'sequelize'
 import { Album } from './Album'
 
 export class Track extends Model<InferAttributes<Track>, InferCreationAttributes<Track>> {
   declare id: CreationOptional<string>
-  declare AlbumId: string
   declare isMissing: CreationOptional<boolean>
   declare path: string
+  declare name: string | null
+  declare format: string | null
+  declare inode: number | null
   declare rel_path: CreationOptional<string | null>
   declare atime: CreationOptional<Date | null>
   declare ctime: CreationOptional<Date | null>
   declare mtime: CreationOptional<Date | null>
   declare size: CreationOptional<number | null>
-  declare inode: CreationOptional<number | null>
-  declare name: string | null
-  declare num: number | null
-  declare duration: number | null
-  declare format: string | null
-  declare bitrate: number | null
+  declare num: CreationOptional<number | null>
+  declare duration: CreationOptional<number | null>
+  declare bitrate: CreationOptional<number | null>
+
+  declare getAlbum: HasManyGetAssociationsMixin<Album>
+  declare addAlbum: HasManyAddAssociationMixin<Album, number>
+  declare addAlbums: HasManyAddAssociationsMixin<Album, number>
+  declare setAlbum: HasManySetAssociationsMixin<Album, number>
+  declare removeAlbum: HasManyRemoveAssociationMixin<Album, number>
+  declare removeAlbums: HasManyRemoveAssociationsMixin<Album, number>
+  declare hasAlbum: HasManyHasAssociationMixin<Album, number>
+  declare hasAlbums: HasManyHasAssociationsMixin<Album, number>
+  declare countAlbum: HasManyCountAssociationsMixin
+  declare createAlbum: HasManyCreateAssociationMixin<Album, 'id'>
+
+  declare album?: NonAttribute<Album | null>
 
   declare static associations: {
     album: Association<Track, Album>
@@ -37,10 +60,6 @@ export class Track extends Model<InferAttributes<Track>, InferCreationAttributes
           type: DataTypes.UUID,
           defaultValue: DataTypes.UUIDV4,
           primaryKey: true
-        },
-        AlbumId: {
-          type: DataTypes.UUID,
-          allowNull: false
         },
         isMissing: {
           type: DataTypes.BOOLEAN,
@@ -113,9 +132,6 @@ export class Track extends Model<InferAttributes<Track>, InferCreationAttributes
   }
 
   public static asssociate(): void {
-    Album.hasMany(Track, {
-      as: 'track',
-      foreignKey: 'AlbumId'
-    })
+    Track.belongsTo(Album)
   }
 }

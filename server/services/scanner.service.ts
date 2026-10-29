@@ -3,9 +3,11 @@ import { fdir } from 'fdir'
 import { logger } from '../logger.ts'
 import { Track } from '../models/Track.ts'
 import fs from 'fs/promises'
+import path from 'path'
 import TrackRepository from '../repository/track.repository.ts'
 import FileMetadataService from './file.metadata.service.ts'
 import AlbumRepository from '../repository/album.repository.ts'
+import { InferCreationAttributes } from 'sequelize'
 
 export class ScannerService {
   private readonly TAG = this.constructor.name
@@ -68,35 +70,46 @@ export class ScannerService {
 
           return false
         })
+        let album = null
 
         const fileMetadata = await this.fileService.getFileMetadata(filePath)
         if (!fileMetadata) {
-          logger.info(`[${this.TAG}]: Couldn't find metadata for: ${filePath}`)
-        } else {
-          // album = await this.albumRepository.findOrCreate(fileMetadata)
+          logger.info(`[${this.TAG}]: Couldn't find metadata for: ${filePath} creating/updating without it`)
+        }
+        if (!existingTrack?.album && fileMetadata) {
+          album = await this.albumRepository.createAlbum(
+            fileMetadata.format_tag_album_name,
+            fileMetadata.format_tag_album_artist
+          )
+        }
+        const trackFields: InferCreationAttributes<Track, { omit: 'id' }> = {
+          path: filePath,
+          name: filePath,
+          rel_path: filePath,
+          inode: fileStat.ino,
+          atime: fileStat.atime,
+          ctime: fileStat.ctime,
+          mtime: fileStat.mtime,
+          size: fileStat.size,
+          format: path.extname(filePath),
+          bitrate: fileMetadata?.bitrate,
+          duration: fileMetadata?.duration,
+          num: fileMetadata?.format_tag_disc,
+          isMissing: false
         }
 
         if (existingTrack) {
           foundLibraryItems.add(existingTrack.id)
-          // await this.trackRepository.update(existingTrack, {
-          //   ...fileStat,
-          //   path: filePath
-          // })
+          await this.trackRepository.update(existingTrack, trackFields)
+          if (album) {
+            existingTrack.addAlbum(album)
+          }
         } else {
-          // const createdTrack = await this.trackRepository.create({
-          //   isMissing: false,
-          //   path: filePath,
-          //   atime: fileStat.atime,
-          //   ctime: fileStat.ctime,
-          //   mtime: fileStat.mtime,
-          //   size: fileStat.size,
-          //   inode: fileStat.ino,
-          //   AlbumId: album.id,
-          //   bitrate: fileMetadata.bitrate,
-          //   duration: fileMetadata.duration,
-          //   format: fileMetadata.format_name
-          // })
-          // foundLibraryItems.add(createdTrack.id)
+          const createdTrack = await this.trackRepository.create(trackFields)
+          foundLibraryItems.add(createdTrack.id)
+          if (album) {
+            createdTrack.addAlbum(album)
+          }
         }
       }
 

@@ -5,23 +5,18 @@ import {
   CreationOptional,
   Model,
   Sequelize,
-  Association
 } from 'sequelize'
 import { Album } from './Album'
 
 export class Artist extends Model<InferAttributes<Artist>, InferCreationAttributes<Artist>> {
   declare id: CreationOptional<string>
-  declare name: string
+  declare name: string | null
   declare born: CreationOptional<string | Date | null>
   declare banner: CreationOptional<string | null>
   declare members: CreationOptional<string | null>
   declare description: CreationOptional<string | null>
   declare area: CreationOptional<string | null>
   declare type: CreationOptional<string | null>
-
-  declare static associations: {
-    album: Association<Album, Artist>
-  }
 
   public static initialize(sequelize: Sequelize): void {
     Artist.init(
@@ -33,8 +28,7 @@ export class Artist extends Model<InferAttributes<Artist>, InferCreationAttribut
         },
         name: {
           type: DataTypes.STRING,
-          allowNull: false,
-          defaultValue: 'unknown'
+          allowNull: true,
         },
         born: {
           type: DataTypes.DATEONLY,
@@ -72,9 +66,6 @@ export class Artist extends Model<InferAttributes<Artist>, InferCreationAttribut
   }
 
   public static associate(): void {
-    Artist.hasMany(Album, {
-      as: 'albums',
-      foreignKey: 'ArtistId'
-    })
+    Artist.hasMany(Album)
   }
 }
